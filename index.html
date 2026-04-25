@@ -286,6 +286,23 @@ nav.on{background:rgba(6,9,6,.9);backdrop-filter:blur(20px);border-color:var(--b
 @keyframes drawTick{   to{stroke-dashoffset:0} }
 @keyframes successText{ to{opacity:1;transform:translateY(0)} }
 
+/* ── STATIC SUCCESS (page-load, already-submitted) ────────────── */
+/* Skips draw animations — shows the finished state immediately    */
+.success-container.is-static .checkmark-circle{
+  animation:none;
+  stroke-dashoffset:0;
+}
+.success-container.is-static .checkmark-tick{
+  animation:none;
+  stroke-dashoffset:0;
+}
+.success-container.is-static .success-title,
+.success-container.is-static .success-sub{
+  animation:none;
+  opacity:1;
+  transform:none;
+}
+
 /* ── ERROR STATE ───────────────────────────────────────────────── */
 .werr-msg{
   display:none;margin-top:20px;padding:16px 22px;
@@ -654,7 +671,7 @@ footer{border-top:1px solid var(--bd);padding:44px 52px;display:flex;align-items
     <h2 class="wh rv d1">Be<br><em>First.</em></h2>
     <p class="wsub rv d2">Early access is limited to athletes. Be among the first players to get discovered.</p>
 
-    <form class="wform rv d3" id="wlForm" novalidate>
+    <form class="wform rv d3" id="waitlist-form" novalidate>
 
   <!-- StaticForms required hidden fields -->
   <input type="hidden" name="accessKey" value="sf_f92f1410de66d4366e8b40a0">
@@ -810,59 +827,92 @@ document.querySelectorAll('.simg-wrap img').forEach(img=>{
   });
 });
 
-/* ── WAITLIST — StaticForms AJAX ─────────────────────────────── */
-(function(){
-  const form    = document.getElementById('wlForm');
+/* ── WAITLIST — StaticForms AJAX + one-submission guard ───────── */
+(function () {
+  const LS_KEY  = 'nexpect_waitlist';       // localStorage flag key
+  const LS_DONE = 'submitted';              // flag value
+  const form    = document.getElementById('waitlist-form');
   const btn     = document.getElementById('wbtn');
   const wok     = document.getElementById('wok');
   const werr    = document.getElementById('werr');
-  const FIELDS  = ['wfn','wln','wem','wsp','wco'];
+  const FIELDS  = ['wfn', 'wln', 'wem', 'wsp', 'wco'];
   const emailRe = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 
-  // Clear red borders when user starts correcting a field
+  // ── Helper: show success state ────────────────────────────────
+  // static = true  →  skip draw animations (page-load reveal)
+  // static = false →  run full animation sequence (fresh submit)
+  function showSuccess(isStatic) {
+    form.style.display = 'none';
+    werr.style.display = 'none';
+
+    if (isStatic) {
+      // Show completed state immediately — no re-running animations
+      wok.classList.add('is-static');
+      wok.style.display = 'block';
+    } else {
+      // Fresh submission — reset keyframes then let CSS play them
+      wok.classList.remove('is-static');
+      wok.querySelectorAll(
+        '.checkmark-circle,.checkmark-tick,.success-title,.success-sub,.checkmark-glow'
+      ).forEach(el => {
+        el.style.animation = 'none';
+        void el.offsetWidth;           // force reflow to restart keyframes
+        el.style.animation = '';
+      });
+      wok.style.display = 'block';
+    }
+  }
+
+  // ── Page-load guard: already submitted? ──────────────────────
+  if (localStorage.getItem(LS_KEY) === LS_DONE) {
+    showSuccess(true);   // show static (no animation re-run)
+    return;              // nothing else to wire up
+  }
+
+  // ── Clear red borders when user corrects a field ─────────────
   FIELDS.forEach(id => {
     const el = document.getElementById(id);
     if (el) el.addEventListener('input', () => { el.style.borderColor = ''; });
   });
 
-  form.addEventListener('submit', async function(e) {
+  // ── Form submit handler ───────────────────────────────────────
+  form.addEventListener('submit', async function (e) {
     e.preventDefault();
 
-    // ── Collect values ──────────────────────────────────────────
+    // Collect
     const fn = document.getElementById('wfn').value.trim();
     const ln = document.getElementById('wln').value.trim();
     const em = document.getElementById('wem').value.trim();
     const sp = document.getElementById('wsp').value;
     const co = document.getElementById('wco').value;
 
-    // ── Validate ────────────────────────────────────────────────
+    // Validate
     let ok = true;
-    if (!fn) { document.getElementById('wfn').style.borderColor='rgba(255,80,80,.5)'; ok=false; }
-    if (!ln) { document.getElementById('wln').style.borderColor='rgba(255,80,80,.5)'; ok=false; }
-    if (!emailRe.test(em)) { document.getElementById('wem').style.borderColor='rgba(255,80,80,.5)'; ok=false; }
-    if (!sp) { document.getElementById('wsp').style.borderColor='rgba(255,80,80,.5)'; ok=false; }
-    if (!co) { document.getElementById('wco').style.borderColor='rgba(255,80,80,.5)'; ok=false; }
+    if (!fn) { document.getElementById('wfn').style.borderColor = 'rgba(255,80,80,.5)'; ok = false; }
+    if (!ln) { document.getElementById('wln').style.borderColor = 'rgba(255,80,80,.5)'; ok = false; }
+    if (!emailRe.test(em)) { document.getElementById('wem').style.borderColor = 'rgba(255,80,80,.5)'; ok = false; }
+    if (!sp) { document.getElementById('wsp').style.borderColor  = 'rgba(255,80,80,.5)'; ok = false; }
+    if (!co) { document.getElementById('wco').style.borderColor  = 'rgba(255,80,80,.5)'; ok = false; }
     if (!ok) return;
 
-    // ── Loading state ───────────────────────────────────────────
+    // Loading state — lock the button immediately to prevent double-submit
     btn.textContent = 'SUBMITTING…';
-    btn.disabled = true;
+    btn.disabled    = true;
     werr.style.display = 'none';
 
-    // ── Build payload for StaticForms JSON API ──────────────────
+    // Build StaticForms payload
     const payload = {
-      accessKey : 'sf_f92f1410de66d4366e8b40a0',
-      subject   : 'New NexPect Waitlist Signup',
-      name      : fn + ' ' + ln,
-      email     : em,
-      message   : 'Sport: ' + sp + ' | Country: ' + co,
+      accessKey     : 'sf_f92f1410de66d4366e8b40a0',
+      subject       : 'New NexPect Waitlist Signup',
+      name          : fn + ' ' + ln,
+      email         : em,
+      message       : 'Sport: ' + sp + ' | Country: ' + co,
       '$first_name' : fn,
       '$last_name'  : ln,
       '$sport'      : sp,
       '$country'    : co
     };
 
-    // ── Submit to StaticForms ───────────────────────────────────
     try {
       const res  = await fetch('https://api.staticforms.xyz/submit', {
         method  : 'POST',
@@ -872,41 +922,33 @@ document.querySelectorAll('.simg-wrap img').forEach(img=>{
       const data = await res.json();
 
       if (data.success) {
-        // ── SUCCESS ─────────────────────────────────────────────
-        // Save locally as backup
+        // ── Persist submission flag ───────────────────────────
         try {
+          localStorage.setItem(LS_KEY, LS_DONE);
+          // Also keep the detailed entry array for your own reference
           const list = JSON.parse(localStorage.getItem('nx_wl') || '[]');
-          list.push({ firstName:fn, lastName:ln, email:em, sport:sp, country:co, ts:new Date().toISOString() });
+          list.push({ firstName: fn, lastName: ln, email: em, sport: sp, country: co, ts: new Date().toISOString() });
           localStorage.setItem('nx_wl', JSON.stringify(list));
-        } catch(_) {}
+        } catch (_) {}
 
-        // Fade form out, then swap in animated success state
+        // ── Fade form out → play animated success ─────────────
         form.style.transition = 'opacity .3s ease';
         form.style.opacity    = '0';
-        setTimeout(() => {
-          form.style.display       = 'none';
-          // Reset animations so they play fresh every time (future-proof)
-          wok.querySelectorAll('.checkmark-circle,.checkmark-tick,.success-title,.success-sub,.checkmark-glow')
-            .forEach(el => {
-              el.style.animation = 'none';
-              void el.offsetWidth; // force reflow
-              el.style.animation = '';
-            });
-          wok.style.display        = 'block';
-        }, 300);
+        setTimeout(() => showSuccess(false), 300);
+
       } else {
-        // ── API returned error ──────────────────────────────────
-        werr.textContent = data.message || 'Something went wrong. Please try again.';
+        // StaticForms returned an error
+        werr.textContent   = data.message || 'Something went wrong. Please try again.';
         werr.style.display = 'block';
-        btn.textContent = 'REQUEST EARLY ACCESS →';
-        btn.disabled = false;
+        btn.textContent    = 'REQUEST EARLY ACCESS →';
+        btn.disabled       = false;
       }
     } catch (err) {
-      // ── Network / fetch error ───────────────────────────────
-      werr.textContent = 'Something went wrong. Check your connection and try again.';
+      // Network failure
+      werr.textContent   = 'Something went wrong. Check your connection and try again.';
       werr.style.display = 'block';
-      btn.textContent = 'REQUEST EARLY ACCESS →';
-      btn.disabled = false;
+      btn.textContent    = 'REQUEST EARLY ACCESS →';
+      btn.disabled       = false;
     }
   });
 })();
