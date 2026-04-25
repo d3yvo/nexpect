@@ -565,7 +565,7 @@ footer{border-top:1px solid var(--bd);padding:44px 52px;display:flex;align-items
 
   <!-- StaticForms required hidden fields -->
   <input type="hidden" name="accessKey" value="sf_f92f1410de66d4366e8b40a0">
-  <input type="hidden" name="redirectTo" value="https://d3yvo.github.io#wl">
+  <input type="hidden" name="redirectTo" value="https://nexpect.co#wl">
   <input type="hidden" name="emailTo" value="nexpect@proton.me">
   <input type="hidden" name="subject" value="New NexPect Waitlist Submission">
   <input type="hidden" name="replyTo" value="email">
@@ -654,7 +654,7 @@ footer{border-top:1px solid var(--bd);padding:44px 52px;display:flex;align-items
 </form>
 
     <!-- Success state -->
-    <div class="wok" id="wok">
+    <div class="wok" id="wok" style="display:none;">
       
       <span class="wok-check">✓</span>
       <span class="wok-title">You're on the list.</span>
@@ -696,35 +696,71 @@ document.querySelectorAll('.simg-wrap img').forEach(img=>{
   });
 });
 
-/* WAITLIST */
-function doWL(e){
-  e.preventDefault();
-  const fn=document.getElementById('wfn').value.trim();
-  const ln=document.getElementById('wln').value.trim();
-  const em=document.getElementById('wem').value.trim();
-  const sp=document.getElementById('wsp').value;
-  const co=document.getElementById('wco').value;
-  const emailRe=/^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-  // Validate
-  if(!fn||!ln||!emailRe.test(em)||!sp||!co){
-    if(!fn)document.getElementById('wfn').style.borderColor='rgba(255,80,80,.5)';
-    if(!ln)document.getElementById('wln').style.borderColor='rgba(255,80,80,.5)';
-    if(!emailRe.test(em))document.getElementById('wem').style.borderColor='rgba(255,80,80,.5)';
-    if(!sp)document.getElementById('wsp').style.borderColor='rgba(255,80,80,.5)';
-    if(!co)document.getElementById('wco').style.borderColor='rgba(255,80,80,.5)';
+/* WAITLIST - StaticForms Integration */
+// Hide success message initially
+document.getElementById('wok').style.display = 'none';
+
+// Handle form submission
+const form = document.getElementById('wlForm');
+const submitBtn = document.getElementById('wbtn');
+
+form.addEventListener('submit', async function(e) {
+  // Don't prevent default - let the form submit naturally to StaticForms
+  // But we need to show loading state
+  
+  // Validate fields
+  const fn = document.getElementById('wfn').value.trim();
+  const ln = document.getElementById('wln').value.trim();
+  const em = document.getElementById('wem').value.trim();
+  const sp = document.getElementById('wsp').value;
+  const co = document.getElementById('wco').value;
+  const emailRe = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+  
+  let hasError = false;
+  
+  if (!fn) {
+    document.getElementById('wfn').style.borderColor = 'rgba(255,80,80,.5)';
+    hasError = true;
+  }
+  if (!ln) {
+    document.getElementById('wln').style.borderColor = 'rgba(255,80,80,.5)';
+    hasError = true;
+  }
+  if (!emailRe.test(em)) {
+    document.getElementById('wem').style.borderColor = 'rgba(255,80,80,.5)';
+    hasError = true;
+  }
+  if (!sp) {
+    document.getElementById('wsp').style.borderColor = 'rgba(255,80,80,.5)';
+    hasError = true;
+  }
+  if (!co) {
+    document.getElementById('wco').style.borderColor = 'rgba(255,80,80,.5)';
+    hasError = true;
+  }
+  
+  if (hasError) {
+    e.preventDefault();
     return;
   }
-  const entry={firstName:fn,lastName:ln,email:em,sport:sp,country:co,ts:new Date().toISOString()};
-  try{
-    const l=JSON.parse(localStorage.getItem('nx_wl')||'[]');
+  
+  // Save to localStorage as backup
+  const entry = {firstName: fn, lastName: ln, email: em, sport: sp, country: co, ts: new Date().toISOString()};
+  try {
+    const l = JSON.parse(localStorage.getItem('nx_wl') || '[]');
     l.push(entry);
-    localStorage.setItem('nx_wl',JSON.stringify(l));
-    console.log('NexPect waitlist entry saved:',entry);
-  }catch(er){}
-  // Show success, hide form
-  document.getElementById('wlForm').style.display='none';
-  document.getElementById('wok').style.display='block';
-}
+    localStorage.setItem('nx_wl', JSON.stringify(l));
+  } catch(er) {}
+  
+  // Show loading state
+  const originalText = submitBtn.innerText;
+  submitBtn.innerText = 'SENDING...';
+  submitBtn.disabled = true;
+  
+  // Let the form submit to StaticForms
+  // The rest happens via redirect
+});
+
 // Clear error highlight on input
 document.addEventListener('DOMContentLoaded',()=>{
   ['wfn','wln','wem','wsp','wco'].forEach(id=>{
