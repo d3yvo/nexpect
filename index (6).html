@@ -1,0 +1,757 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>NexPect — The Future of Athlete Discovery</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Syne:wght@300;400;500&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+/* ─── TOKENS ─────────────────────────────────────── */
+:root{
+  --bg:#060906; --bg2:#0b120a; --bg3:#101a0f;
+  --G:#39ff60; --Gd:#0d3318;
+  --w:#edf5ee; --gr:#7a9280; --mu:#3e5244; --bd:#162118;
+  --D:'Bebas Neue',sans-serif;
+  --B:'Syne',sans-serif;
+  --M:'JetBrains Mono',monospace;
+}
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+html{scroll-behavior:smooth}
+body{background:var(--bg);color:var(--w);font-family:var(--B);font-weight:300;overflow-x:hidden;cursor:none}
+img{display:block;max-width:100%}
+
+/* CURSOR */
+#c1{position:fixed;top:0;left:0;width:8px;height:8px;background:var(--G);border-radius:50%;pointer-events:none;z-index:9999;transform:translate(-50%,-50%)}
+#c2{position:fixed;top:0;left:0;width:32px;height:32px;border:1px solid rgba(57,255,96,.35);border-radius:50%;pointer-events:none;z-index:9998;transform:translate(-50%,-50%);transition:width .3s,height .3s,opacity .3s}
+
+/* NAV */
+nav{position:fixed;inset:0 0 auto;z-index:200;display:flex;align-items:center;justify-content:space-between;padding:22px 52px;border-bottom:1px solid transparent;transition:background .4s,border-color .4s}
+nav.on{background:rgba(6,9,6,.9);backdrop-filter:blur(20px);border-color:var(--bd)}
+.nlogo img{height:32px}
+.ncta{font-family:var(--M);font-size:10px;letter-spacing:.18em;text-transform:uppercase;color:var(--bg);background:var(--G);border:none;padding:11px 26px;transition:transform .2s,box-shadow .2s;cursor:none}
+.ncta:hover{transform:translateY(-2px);box-shadow:0 8px 24px rgba(57,255,96,.3)}
+
+/* HERO */
+#hero{position:relative;height:100vh;min-height:600px;display:flex;flex-direction:column;justify-content:flex-end;padding:0 52px 88px;overflow:hidden}
+#hc{position:absolute;inset:0;z-index:1}
+.hbg{position:absolute;inset:0;z-index:0;background:radial-gradient(ellipse 100% 70% at 70% 50%,rgba(57,255,96,.04) 0%,transparent 60%)}
+.hn{position:absolute;inset:0;z-index:2;opacity:.02;pointer-events:none;background-image:url("data:image/svg+xml,%3Csvg viewBox='0 0 512 512' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.8' numOctaves='4'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E")}
+.hcnt{position:relative;z-index:5;max-width:860px}
+.htag{font-family:var(--M);font-size:10px;letter-spacing:.24em;text-transform:uppercase;color:var(--G);margin-bottom:28px;display:flex;align-items:center;gap:14px;opacity:0;animation:fu .8s .3s both}
+.htag::before{content:'';width:28px;height:1px;background:var(--G)}
+.hh1{font-family:var(--D);font-size:clamp(88px,13vw,176px);line-height:.88;letter-spacing:-.01em;margin-bottom:32px;opacity:0;animation:fu .9s .5s both}
+.hh1 em{font-style:normal;color:var(--G)}
+.hsub{font-size:clamp(14px,1.5vw,17px);color:var(--gr);line-height:1.8;max-width:420px;margin-bottom:48px;opacity:0;animation:fu .8s .72s both}
+.hbtn{font-family:var(--M);font-size:11px;letter-spacing:.18em;text-transform:uppercase;color:var(--bg);background:var(--G);border:none;padding:17px 40px;transition:transform .2s,box-shadow .2s;opacity:0;animation:fu .8s .9s both;cursor:none}
+.hbtn:hover{transform:translateY(-3px);box-shadow:0 10px 32px rgba(57,255,96,.3)}
+.hscr{position:absolute;right:52px;bottom:36px;z-index:5;display:flex;flex-direction:column;align-items:center;gap:10px;font-family:var(--M);font-size:8px;letter-spacing:.22em;text-transform:uppercase;color:var(--mu);opacity:0;animation:fi 1s 1.4s both}
+.sbar{width:1px;height:52px;background:var(--mu);overflow:hidden;position:relative}
+.sbar::after{content:'';position:absolute;top:-100%;left:0;width:1px;height:100%;background:var(--G);animation:sd 1.8s 1.6s infinite}
+
+/* TICKER */
+.tick{overflow:hidden;border-top:1px solid var(--bd);border-bottom:1px solid var(--bd);background:var(--bg2);padding:14px 0}
+.ttrack{display:flex;width:max-content;animation:tk 30s linear infinite}
+.ttrack:hover{animation-play-state:paused}
+.ti{font-family:var(--D);font-size:19px;letter-spacing:.06em;color:var(--mu);padding:0 40px;white-space:nowrap;transition:color .3s}
+.ti:hover{color:var(--w)}
+.td{color:var(--G);padding:0 4px;font-size:19px;font-family:var(--D)}
+
+/* REVEAL */
+.rv{opacity:0;transform:translateY(26px);transition:opacity .75s ease,transform .75s ease}
+.rv.vis{opacity:1;transform:none}
+.d1{transition-delay:.1s}.d2{transition-delay:.22s}.d3{transition-delay:.36s}
+
+/* TEASE */
+#tease{padding:140px 52px;display:grid;grid-template-columns:1fr 1fr;gap:96px;align-items:center;max-width:1440px;margin:0 auto}
+.ttag{font-family:var(--M);font-size:10px;letter-spacing:.24em;text-transform:uppercase;color:var(--G);margin-bottom:28px;display:flex;align-items:center;gap:12px}
+.ttag::before{content:'';width:22px;height:1px;background:var(--G)}
+.th2{font-family:var(--D);font-size:clamp(52px,6.5vw,100px);line-height:.93;margin-bottom:40px}
+.tbody{font-size:15px;color:var(--gr);line-height:1.85;max-width:380px}
+.tvis{position:relative}
+.tbadge{position:absolute;bottom:-20px;left:-28px;background:var(--bg);border:1px solid var(--bd);padding:20px 28px}
+.tbn{font-family:var(--D);font-size:44px;color:var(--G);line-height:1}
+.tbl{font-family:var(--M);font-size:9px;letter-spacing:.18em;color:var(--mu);text-transform:uppercase}
+.tline{position:absolute;top:24px;right:-12px;width:3px;height:55%;background:var(--G)}
+
+/* SPORTS INTRO */
+.sint{padding:100px 52px 72px;max-width:1440px;margin:0 auto;display:flex;align-items:baseline;justify-content:space-between;border-bottom:1px solid var(--bd)}
+.sinh{font-family:var(--D);font-size:clamp(52px,7vw,96px);line-height:.93}
+.sinm{font-family:var(--M);font-size:10px;color:var(--mu);letter-spacing:.18em;text-align:right;line-height:2}
+
+/* ── SPORT CARD ────────────────────────────────── */
+.ssec{position:relative;border-bottom:1px solid var(--bd);overflow:hidden;background:var(--bg2)}
+
+/* Real image container */
+.simg-wrap{
+  position:relative;
+  height:600px;
+  overflow:hidden;
+  will-change:transform;
+  -webkit-transform:translateZ(0);
+  transform:translateZ(0);
+}
+.simg-wrap img{
+  position:absolute;inset:0;
+  width:100%;height:100%;
+  object-fit:cover;object-position:center;
+  transition:transform 10s ease, filter .6s ease;
+  filter:grayscale(18%) contrast(1.1) brightness(.88);
+  /* Max render quality — prevent browser downsampling */
+  image-rendering:-webkit-optimize-contrast;
+  image-rendering:crisp-edges;
+  image-rendering:high-quality;
+  -webkit-backface-visibility:hidden;
+  backface-visibility:hidden;
+  will-change:transform;
+}
+.ssec:hover .simg-wrap img{
+  transform:scale(1.05);
+  filter:grayscale(0%) contrast(1.12) brightness(.92);
+}
+/* Gradient overlay */
+.simg-wrap::after{
+  content:'';
+  position:absolute;inset:0;
+  background:
+    linear-gradient(to top, rgba(6,9,6,.96) 0%, rgba(6,9,6,.5) 40%, rgba(6,9,6,.08) 100%),
+    linear-gradient(to right, rgba(6,9,6,.35) 0%, transparent 55%);
+  pointer-events:none;
+  z-index:2;
+}
+/* Accent bar on right edge */
+.simg-wrap::before{
+  content:'';
+  position:absolute;
+  top:0;right:0;
+  width:3px;height:100%;
+  background:var(--G);
+  opacity:0;
+  z-index:3;
+  transition:opacity .4s;
+}
+.ssec:hover .simg-wrap::before{opacity:.7}
+
+/* Info overlay */
+.sovl{
+  position:absolute;bottom:0;left:0;right:0;
+  z-index:4;
+  padding:36px 52px 44px;
+}
+.sovl-inner{
+  display:flex;align-items:flex-end;justify-content:space-between;
+  max-width:1440px;margin:0 auto;
+}
+.sidx{font-family:var(--M);font-size:10px;letter-spacing:.22em;color:var(--G);margin-bottom:8px}
+.sname{font-family:var(--D);font-size:clamp(52px,6.5vw,90px);line-height:.92;color:var(--w)}
+.sdesc{font-size:13px;color:var(--gr);line-height:1.75;max-width:320px;text-align:right;padding-bottom:4px}
+
+/* IMAGE FALLBACK (gradient + pattern when img fails to load) */
+.simg-wrap.fallback{background:var(--bg2)}
+.simg-wrap.fallback img{opacity:0}
+
+/* MANIFESTO */
+#mani{background:var(--bg2);border-top:1px solid var(--bd);border-bottom:1px solid var(--bd);padding:160px 52px;text-align:center;position:relative;overflow:hidden}
+.mghost{position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);font-family:var(--D);font-size:clamp(80px,18vw,300px);color:transparent;-webkit-text-stroke:1px rgba(57,255,96,.03);white-space:nowrap;pointer-events:none;user-select:none}
+.minn{position:relative;z-index:1;max-width:860px;margin:0 auto}
+.mline{font-family:var(--D);font-size:clamp(48px,7.5vw,100px);line-height:.93;display:block;margin-bottom:6px}
+.mline em{font-style:normal;color:var(--G)}
+.msub{margin-top:52px;font-size:15px;color:var(--gr);line-height:1.8;max-width:400px;margin-left:auto;margin-right:auto}
+
+/* STATS */
+.stats{padding:0 52px;max-width:1440px;margin:0 auto}
+.srow{display:grid;grid-template-columns:repeat(3,1fr);background:var(--bd);gap:1px;border:1px solid var(--bd)}
+.sbox{background:var(--bg);padding:64px 52px;transition:background .3s}
+.sbox:hover{background:var(--bg2)}
+.sn{font-family:var(--D);font-size:clamp(64px,7.5vw,104px);color:var(--G);line-height:1;display:block;margin-bottom:10px}
+.sl{font-family:var(--M);font-size:10px;letter-spacing:.18em;color:var(--mu);text-transform:uppercase;line-height:1.7}
+
+/* WAITLIST */
+#wl{padding:160px 52px;position:relative;overflow:hidden}
+.wglow{position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);width:800px;height:800px;background:radial-gradient(circle,rgba(57,255,96,.05) 0%,transparent 68%);pointer-events:none;border-radius:50%}
+.winn{max-width:640px;margin:0 auto;text-align:center;position:relative;z-index:2}
+.wpill{display:inline-block;font-family:var(--M);font-size:9px;letter-spacing:.26em;text-transform:uppercase;color:var(--G);border:1px solid var(--Gd);padding:9px 22px;margin-bottom:44px}
+.wh{font-family:var(--D);font-size:clamp(60px,9.5vw,132px);line-height:.88;margin-bottom:28px}
+.wh em{font-style:normal;color:var(--G)}
+.wsub{font-size:15px;color:var(--gr);line-height:1.8;max-width:400px;margin:0 auto 52px}
+/* Form */
+.wform{width:100%;display:flex;flex-direction:column;gap:0;text-align:left}
+.wgrid2{display:grid;grid-template-columns:1fr 1fr;gap:1px;margin-bottom:1px}
+.wfield{position:relative;display:flex;flex-direction:column}
+.wlabel{font-family:var(--M);font-size:9px;letter-spacing:.2em;text-transform:uppercase;color:var(--G);padding:14px 22px 0;background:var(--bg2);border:1px solid var(--bd);border-bottom:none;line-height:1;display:block}
+.winput,.wsel-inner{width:100%;background:var(--bg2);border:1px solid var(--bd);border-top:none;padding:10px 22px 16px;color:var(--w);font-family:var(--B);font-size:15px;outline:none;transition:border-color .3s,background .2s;appearance:none;-webkit-appearance:none;display:block}
+.winput::placeholder{color:var(--mu)}
+.winput:focus,.wsel-inner:focus{border-color:rgba(57,255,96,.45)!important;background:var(--bg3)}
+.wgrid2 .wfield:first-child .wlabel,.wgrid2 .wfield:first-child .winput{border-right:none}
+.wfull{margin-bottom:1px}
+.wfull .wlabel{border-top:none}
+.wfull .winput,.wfull .wsel-inner{border-top:none}
+/* Select arrow */
+.wsel-wrap{position:relative}
+.wsel-wrap::after{content:"";position:absolute;right:22px;top:56%;transform:translateY(-50%);width:0;height:0;border-left:5px solid transparent;border-right:5px solid transparent;border-top:6px solid var(--G);pointer-events:none;opacity:.8}
+.wsel-inner{padding-right:46px;cursor:pointer;color:var(--mu)}
+.wsel-inner:focus{color:var(--w)}
+.wsel-inner option{background:#0d1a0e;color:var(--w)}
+/* Accent underline on focus */
+.wacc{position:absolute;bottom:0;left:0;height:2px;width:0;background:var(--G);transition:width .35s ease;pointer-events:none}
+.winput:focus~.wacc,.wsel-inner:focus~.wacc{width:100%}
+/* Submit */
+.wsubmit-wrap{padding-top:24px;text-align:center}
+.wbtn{background:var(--G);border:none;padding:19px 64px;font-family:var(--M);font-size:11px;letter-spacing:.22em;text-transform:uppercase;color:var(--bg);transition:transform .25s,box-shadow .25s;cursor:none;font-weight:700;width:100%}
+.wbtn:hover{transform:translateY(-3px);box-shadow:0 12px 36px rgba(57,255,96,.35)}
+/* Note + success */
+.wnote{font-family:var(--M);font-size:9px;letter-spacing:.14em;color:var(--mu);margin-top:16px;text-align:center}
+.wok{display:none;padding:40px 0 0;text-align:center}
+.wok-check{font-size:32px;display:block;margin-bottom:16px}
+.wok-title{font-family:var(--D);font-size:40px;color:var(--G);display:block;margin-bottom:8px;line-height:1}
+.wok-sub{font-family:var(--M);font-size:10px;letter-spacing:.16em;color:var(--gr)}
+
+/* FOOTER */
+footer{border-top:1px solid var(--bd);padding:44px 52px;display:flex;align-items:center;justify-content:space-between}
+.flogo img{height:28px;opacity:.55}
+.fcopy{font-family:var(--M);font-size:9px;letter-spacing:.14em;color:var(--mu);text-transform:uppercase}
+
+/* KEYFRAMES */
+@keyframes fu{from{opacity:0;transform:translateY(22px)}to{opacity:1;transform:none}}
+@keyframes fi{from{opacity:0}to{opacity:1}}
+@keyframes tk{from{transform:translateX(0)}to{transform:translateX(-50%)}}
+@keyframes sd{0%{top:-100%}100%{top:100%}}
+
+/* RESPONSIVE */
+@media(max-width:1000px){
+  body{cursor:auto}#c1,#c2{display:none}
+  nav{padding:18px 24px}
+  #hero{padding:0 24px 72px}
+  #tease{grid-template-columns:1fr;padding:80px 24px;gap:56px}
+  .tbadge{display:none}
+  .sint{padding:72px 24px 52px;flex-direction:column;gap:20px}
+  .sinm{text-align:left}
+  .simg-wrap{height:360px}
+  .sovl{padding:24px 24px 28px}
+  .sdesc{display:none}
+  #mani{padding:100px 24px}
+  .stats{padding:0 24px}
+  .srow{grid-template-columns:1fr}
+  .sbox{padding:44px 28px}
+  #wl{padding:100px 24px}
+  .wgrid2{grid-template-columns:1fr}
+  .wgrid2 .wfield:first-child .wlabel,.wgrid2 .wfield:first-child .winput{border-right:1px solid var(--bd)}
+  footer{flex-direction:column;gap:18px;text-align:center;padding:32px 24px}
+}
+</style>
+</head>
+<body>
+
+<div id="c1"></div><div id="c2"></div>
+
+<!-- NAV -->
+<nav id="nav">
+  <div class="nlogo"><img src="https://i.imgur.com/iwa0NAS.png" alt="NexPect"></div>
+  <button class="ncta" onclick="document.getElementById('wl').scrollIntoView({behavior:'smooth'})">Join Waitlist</button>
+</nav>
+
+<!-- HERO -->
+<section id="hero">
+  <div class="hbg"></div><div class="hn"></div>
+  <canvas id="hc"></canvas>
+  <div class="hcnt">
+    <p class="htag">Athletes Only &nbsp;·&nbsp; Early Access</p>
+    <h1 class="hh1">Get<br><em>Seen.</em></h1>
+    <p class="hsub">The platform that puts your game in front of the people who matter. No noise. No filters. Just results.</p>
+    <button class="hbtn" onclick="document.getElementById('wl').scrollIntoView({behavior:'smooth'})">Request Early Access</button>
+  </div>
+  <div class="hscr"><span>Scroll</span><div class="sbar"></div></div>
+</section>
+
+<!-- TICKER -->
+<div class="tick"><div class="ttrack">
+  <span class="ti">Football</span><span class="td">·</span><span class="ti">Basketball</span><span class="td">·</span><span class="ti">American Football</span><span class="td">·</span><span class="ti">Rugby</span><span class="td">·</span><span class="ti">Boxing</span><span class="td">·</span><span class="ti">MMA</span><span class="td">·</span><span class="ti">Baseball</span><span class="td">·</span><span class="ti">Wrestling</span><span class="td">·</span><span class="ti">Cycling</span><span class="td">·</span>
+  <span class="ti">Football</span><span class="td">·</span><span class="ti">Basketball</span><span class="td">·</span><span class="ti">American Football</span><span class="td">·</span><span class="ti">Rugby</span><span class="td">·</span><span class="ti">Boxing</span><span class="td">·</span><span class="ti">MMA</span><span class="td">·</span><span class="ti">Baseball</span><span class="td">·</span><span class="ti">Wrestling</span><span class="td">·</span><span class="ti">Cycling</span><span class="td">·</span>
+</div></div>
+
+<!-- TEASE -->
+<section id="tease">
+  <div class="rv">
+    <p class="ttag">What's coming</p>
+    <h2 class="th2">Your<br>moment<br>is<br>coming.</h2>
+    <p class="tbody">Discovery shouldn't depend on who you know. NexPect is built for athletes who let their game speak — giving you the visibility that changes careers.</p>
+  </div>
+  <div class="tvis rv d2">
+    <!-- Rugby lineout — James Coleman / Unsplash -->
+    <img
+      src="https://images.unsplash.com/photo-1531415074968-036ba1b575da?w=3840&q=100&fit=crop&fm=webp&auto=format"
+      srcset="https://images.unsplash.com/photo-1531415074968-036ba1b575da?w=400&q=80&fit=crop&fm=webp&auto=format 400w, https://images.unsplash.com/photo-1531415074968-036ba1b575da?w=800&q=90&fit=crop&fm=webp&auto=format 800w, https://images.unsplash.com/photo-1531415074968-036ba1b575da?w=1600&q=100&fit=crop&fm=webp&auto=format 1600w"
+      sizes="(max-width:768px) 100vw, 50vw"
+      alt="Rugby lineout"
+      style="width:100%;aspect-ratio:3/4;object-fit:cover;display:block;filter:grayscale(10%) contrast(1.08)"
+      onerror="this.src='assets/IMG_1746.jpeg'"
+    >
+    <div class="tbadge"><span class="tbn">9</span><span class="tbl">Sports Covered</span></div>
+    <div class="tline"></div>
+  </div>
+</section>
+
+<!-- SPORTS HEADER -->
+<div class="sint rv">
+  <h2 class="sinh">Built For<br>Every Sport</h2>
+  <div class="sinm"><span>09 SPORTS</span><br><span>ALL LEVELS</span><br><span>WORLDWIDE</span></div>
+</div>
+
+
+<!-- ══════════════ 01 — FOOTBALL / SOCCER ══════════════ -->
+<div class="ssec rv">
+  <div class="simg-wrap">
+    <!--
+      Pexels: soccer player action on field (ID 5470373 — Dean Gnjidic)
+      Fallback: Pexels ID 274422 (classic three men playing soccer)
+    -->
+    <img
+      src="https://images.pexels.com/photos/5470373/pexels-photo-5470373.jpeg?cs=srgb&w=3840&q=100&fit=crop"
+      srcset="https://images.pexels.com/photos/5470373/pexels-photo-5470373.jpeg?cs=srgb&w=640&q=80&fit=crop 640w, https://images.pexels.com/photos/5470373/pexels-photo-5470373.jpeg?cs=srgb&w=1280&q=90&fit=crop 1280w, https://images.pexels.com/photos/5470373/pexels-photo-5470373.jpeg?cs=srgb&w=1920&q=95&fit=crop 1920w, https://images.pexels.com/photos/5470373/pexels-photo-5470373.jpeg?cs=srgb&w=3840&q=100&fit=crop 3840w"
+      sizes="(max-width:768px) 100vw, (max-width:1200px) 100vw, 100vw"
+      alt="Soccer players in action on the field"
+      loading="eager"
+      fetchpriority="high"
+      decoding="async"
+      onerror="this.src='https://images.pexels.com/photos/274422/pexels-photo-274422.jpeg?cs=srgb&w=1920&q=100&fit=crop'"
+    >
+  </div>
+  <div class="sovl">
+    <div class="sovl-inner">
+      <div><p class="sidx">01 / 09</p><h3 class="sname">Football</h3></div>
+      <p class="sdesc">The beautiful game. No borders, no limits. Pure passion on every pitch across the planet.</p>
+    </div>
+  </div>
+</div>
+
+
+<!-- ══════════════ 02 — BASKETBALL ══════════════ -->
+<div class="ssec rv">
+  <div class="simg-wrap">
+    <!--
+      Pexels: bilal bouhabba — Real basketball players in competitive match, packed stadium crowd
+      Photo ID: 16787680  |  Fallback: Wallace Chuck #2874717
+    -->
+    <img
+      src="https://images.pexels.com/photos/16787680/pexels-photo-16787680.jpeg?cs=srgb&w=3840&q=100&fit=crop"
+      srcset="https://images.pexels.com/photos/16787680/pexels-photo-16787680.jpeg?cs=srgb&w=640&q=80&fit=crop 640w, https://images.pexels.com/photos/16787680/pexels-photo-16787680.jpeg?cs=srgb&w=1280&q=90&fit=crop 1280w, https://images.pexels.com/photos/16787680/pexels-photo-16787680.jpeg?cs=srgb&w=1920&q=95&fit=crop 1920w, https://images.pexels.com/photos/16787680/pexels-photo-16787680.jpeg?cs=srgb&w=3840&q=100&fit=crop 3840w"
+      sizes="(max-width:768px) 100vw, (max-width:1200px) 100vw, 100vw"
+      alt="Basketball players competing in a real game inside a stadium with crowd watching"
+      loading="lazy"
+      decoding="async"
+      onerror="this.src='https://images.pexels.com/photos/2874717/pexels-photo-2874717.jpeg?cs=srgb&w=1920&q=100&fit=crop'"
+    >
+  </div>
+  <div class="sovl">
+    <div class="sovl-inner">
+      <div><p class="sidx">02 / 09</p><h3 class="sname">Basketball</h3></div>
+      <p class="sdesc">Above the rim. Beyond limits. Every court is a stage waiting for its player.</p>
+    </div>
+  </div>
+</div>
+
+
+<!-- ══════════════ 03 — AMERICAN FOOTBALL ══════════════ -->
+<div class="ssec rv">
+  <div class="simg-wrap">
+    <!--
+      Pexels: American football player action (ID 1618200 — football players)
+    -->
+    <img
+      src="https://images.pexels.com/photos/1618200/pexels-photo-1618200.jpeg?cs=srgb&w=3840&q=100&fit=crop"
+      srcset="https://images.pexels.com/photos/1618200/pexels-photo-1618200.jpeg?cs=srgb&w=640&q=80&fit=crop 640w, https://images.pexels.com/photos/1618200/pexels-photo-1618200.jpeg?cs=srgb&w=1280&q=90&fit=crop 1280w, https://images.pexels.com/photos/1618200/pexels-photo-1618200.jpeg?cs=srgb&w=1920&q=95&fit=crop 1920w, https://images.pexels.com/photos/1618200/pexels-photo-1618200.jpeg?cs=srgb&w=3840&q=100&fit=crop 3840w"
+      sizes="(max-width:768px) 100vw, (max-width:1200px) 100vw, 100vw"
+      alt="American football player running on field"
+      loading="lazy"
+      decoding="async"
+      onerror="this.src='https://images.pexels.com/photos/209956/pexels-photo-209956.jpeg?cs=srgb&w=1920&q=100&fit=crop'"
+    >
+  </div>
+  <div class="sovl">
+    <div class="sovl-inner">
+      <div><p class="sidx">03 / 09</p><h3 class="sname">American Football</h3></div>
+      <p class="sdesc">Every catch. Every route. Every yard fought for. The game never stops rewarding those who give everything.</p>
+    </div>
+  </div>
+</div>
+
+
+<!-- ══════════════ 04 — RUGBY ══════════════ -->
+<div class="ssec rv">
+  <div class="simg-wrap">
+    <!--
+      Unsplash: James Coleman — All Blacks rugby lineout (Wellington)
+      Photo slug: CTEvFbFpVC8  |  CDN: photo-1531415074968-036ba1b575da
+    -->
+    <img
+      src="https://images.unsplash.com/photo-1531415074968-036ba1b575da?w=3840&q=100&fit=crop&fm=webp&auto=format"
+      srcset="https://images.unsplash.com/photo-1531415074968-036ba1b575da?w=640&q=80&fit=crop&fm=webp&auto=format 640w, https://images.unsplash.com/photo-1531415074968-036ba1b575da?w=1280&q=90&fit=crop&fm=webp&auto=format 1280w, https://images.unsplash.com/photo-1531415074968-036ba1b575da?w=1920&q=95&fit=crop&fm=webp&auto=format 1920w, https://images.unsplash.com/photo-1531415074968-036ba1b575da?w=3840&q=100&fit=crop&fm=webp&auto=format 3840w"
+      sizes="(max-width:768px) 100vw, (max-width:1200px) 100vw, 100vw"
+      alt="Rugby lineout — players competing for the ball under floodlights"
+      loading="lazy"
+      decoding="async"
+      onerror="this.src='https://images.pexels.com/photos/3621104/pexels-photo-3621104.jpeg?cs=srgb&w=1920&q=100&fit=crop'"
+    >
+  </div>
+  <div class="sovl">
+    <div class="sovl-inner">
+      <div><p class="sidx">04 / 09</p><h3 class="sname">Rugby</h3></div>
+      <p class="sdesc">Controlled chaos. Pure athleticism. The collision sport that rewards courage above all else.</p>
+    </div>
+  </div>
+</div>
+
+
+<!-- ══════════════ 05 — BASEBALL ══════════════ -->
+<div class="ssec rv">
+  <div class="simg-wrap">
+    <!--
+      Pexels: Pixabay — runner sliding into base, fielder reaching, dust flying — dynamic game action
+      Photo ID: 209933  |  Fallback: batter full swing at home plate (ID 11950068)
+    -->
+    <img
+      src="https://images.pexels.com/photos/209933/pexels-photo-209933.jpeg?cs=srgb&w=3840&q=100&fit=crop"
+      srcset="https://images.pexels.com/photos/209933/pexels-photo-209933.jpeg?cs=srgb&w=640&q=80&fit=crop 640w, https://images.pexels.com/photos/209933/pexels-photo-209933.jpeg?cs=srgb&w=1280&q=90&fit=crop 1280w, https://images.pexels.com/photos/209933/pexels-photo-209933.jpeg?cs=srgb&w=1920&q=95&fit=crop 1920w, https://images.pexels.com/photos/209933/pexels-photo-209933.jpeg?cs=srgb&w=3840&q=100&fit=crop 3840w"
+      sizes="(max-width:768px) 100vw, (max-width:1200px) 100vw, 100vw"
+      alt="Baseball player sliding into base with fielder reaching — dust flying action shot"
+      loading="lazy"
+      decoding="async"
+      onerror="this.src='https://images.pexels.com/photos/11950068/pexels-photo-11950068.jpeg?cs=srgb&w=1920&q=100&fit=crop'"
+    >
+  </div>
+  <div class="sovl">
+    <div class="sovl-inner">
+      <div><p class="sidx">05 / 09</p><h3 class="sname">Baseball</h3></div>
+      <p class="sdesc">Precision. Power. The crack of the bat that echoes through the stadium and beyond.</p>
+    </div>
+  </div>
+</div>
+
+
+<!-- ══════════════ 06 — BOXING ══════════════ -->
+<div class="ssec rv">
+  <div class="simg-wrap">
+    <!--
+      Pexels: Sides Imagery — low-angle two men actually fighting in boxing ring, referee + crowd
+      Photo ID: 2600493
+    -->
+    <img
+      src="https://images.pexels.com/photos/2600493/pexels-photo-2600493.jpeg?cs=srgb&w=3840&q=100&fit=crop"
+      srcset="https://images.pexels.com/photos/2600493/pexels-photo-2600493.jpeg?cs=srgb&w=640&q=80&fit=crop 640w, https://images.pexels.com/photos/2600493/pexels-photo-2600493.jpeg?cs=srgb&w=1280&q=90&fit=crop 1280w, https://images.pexels.com/photos/2600493/pexels-photo-2600493.jpeg?cs=srgb&w=1920&q=95&fit=crop 1920w, https://images.pexels.com/photos/2600493/pexels-photo-2600493.jpeg?cs=srgb&w=3840&q=100&fit=crop 3840w"
+      sizes="(max-width:768px) 100vw, (max-width:1200px) 100vw, 100vw"
+      alt="Two men fighting in a boxing ring — low angle action shot with referee"
+      loading="lazy"
+      decoding="async"
+      onerror="this.src='https://images.pexels.com/photos/4761352/pexels-photo-4761352.jpeg?cs=srgb&w=1920&q=100&fit=crop'"
+    >
+  </div>
+  <div class="sovl">
+    <div class="sovl-inner">
+      <div><p class="sidx">06 / 09</p><h3 class="sname">Boxing</h3></div>
+      <p class="sdesc">The sweet science. The ultimate test of will, speed, and heart. One moment changes everything.</p>
+    </div>
+  </div>
+</div>
+
+
+<!-- ══════════════ 07 — MMA ══════════════ -->
+<div class="ssec rv">
+  <div class="simg-wrap">
+    <!--
+      Pexels: MMA/martial arts fighter action (ID 4761352)
+    -->
+    <img
+      src="https://images.pexels.com/photos/4761352/pexels-photo-4761352.jpeg?cs=srgb&w=3840&q=100&fit=crop"
+      srcset="https://images.pexels.com/photos/4761352/pexels-photo-4761352.jpeg?cs=srgb&w=640&q=80&fit=crop 640w, https://images.pexels.com/photos/4761352/pexels-photo-4761352.jpeg?cs=srgb&w=1280&q=90&fit=crop 1280w, https://images.pexels.com/photos/4761352/pexels-photo-4761352.jpeg?cs=srgb&w=1920&q=95&fit=crop 1920w, https://images.pexels.com/photos/4761352/pexels-photo-4761352.jpeg?cs=srgb&w=3840&q=100&fit=crop 3840w"
+      sizes="(max-width:768px) 100vw, (max-width:1200px) 100vw, 100vw"
+      alt="MMA fighters competing in the cage"
+      loading="lazy"
+      decoding="async"
+      onerror="this.src='https://images.pexels.com/photos/6765038/pexels-photo-6765038.jpeg?cs=srgb&w=1920&q=100&fit=crop'"
+    >
+  </div>
+  <div class="sovl">
+    <div class="sovl-inner">
+      <div><p class="sidx">07 / 09</p><h3 class="sname">MMA</h3></div>
+      <p class="sdesc">No excuses. No limits. No quit. From local gyms to the world stage — the cage never lies.</p>
+    </div>
+  </div>
+</div>
+
+
+<!-- ══════════════ 08 — WRESTLING ══════════════ -->
+<div class="ssec rv">
+  <div class="simg-wrap">
+    <!--
+      Pexels: Bruno Bueno — two male fighters in intense grappling on the mat
+      Photo ID: 5424764
+    -->
+    <img
+      src="https://images.pexels.com/photos/5424764/pexels-photo-5424764.jpeg?cs=srgb&w=3840&q=100&fit=crop"
+      srcset="https://images.pexels.com/photos/5424764/pexels-photo-5424764.jpeg?cs=srgb&w=640&q=80&fit=crop 640w, https://images.pexels.com/photos/5424764/pexels-photo-5424764.jpeg?cs=srgb&w=1280&q=90&fit=crop 1280w, https://images.pexels.com/photos/5424764/pexels-photo-5424764.jpeg?cs=srgb&w=1920&q=95&fit=crop 1920w, https://images.pexels.com/photos/5424764/pexels-photo-5424764.jpeg?cs=srgb&w=3840&q=100&fit=crop 3840w"
+      sizes="(max-width:768px) 100vw, (max-width:1200px) 100vw, 100vw"
+      alt="Two wrestlers in an intense grappling match on the mat"
+      loading="lazy"
+      decoding="async"
+      onerror="this.src='https://images.pexels.com/photos/3622449/pexels-photo-3622449.jpeg?cs=srgb&w=1920&q=100&fit=crop'"
+    >
+  </div>
+  <div class="sovl">
+    <div class="sovl-inner">
+      <div><p class="sidx">08 / 09</p><h3 class="sname">Wrestling</h3></div>
+      <p class="sdesc">Mental warfare made physical. Six minutes of relentless effort that separates the disciplined from everyone else.</p>
+    </div>
+  </div>
+</div>
+
+
+<!-- ══════════════ 09 — CYCLING ══════════════ -->
+<div class="ssec rv">
+  <div class="simg-wrap">
+    <!--
+      Unsplash: Tom Sam — Tour de France cyclists racing on road
+      Photo slug: NLqQauAae80  |  CDN: photo-1534787238916-9ba6764efd4f
+    -->
+    <img
+      src="https://images.unsplash.com/photo-1534787238916-9ba6764efd4f?w=3840&q=100&fit=crop&fm=webp&auto=format"
+      srcset="https://images.unsplash.com/photo-1534787238916-9ba6764efd4f?w=640&q=80&fit=crop&fm=webp&auto=format 640w, https://images.unsplash.com/photo-1534787238916-9ba6764efd4f?w=1280&q=90&fit=crop&fm=webp&auto=format 1280w, https://images.unsplash.com/photo-1534787238916-9ba6764efd4f?w=1920&q=95&fit=crop&fm=webp&auto=format 1920w, https://images.unsplash.com/photo-1534787238916-9ba6764efd4f?w=3840&q=100&fit=crop&fm=webp&auto=format 3840w"
+      sizes="(max-width:768px) 100vw, (max-width:1200px) 100vw, 100vw"
+      alt="Professional cyclists racing during Tour de France"
+      loading="lazy"
+      decoding="async"
+      onerror="this.src='https://images.pexels.com/photos/2539922/pexels-photo-2539922.jpeg?cs=srgb&w=1920&q=100&fit=crop'"
+    >
+  </div>
+  <div class="sovl">
+    <div class="sovl-inner">
+      <div><p class="sidx">09 / 09</p><h3 class="sname">Cycling</h3></div>
+      <p class="sdesc">Speed is a mindset. Distance is a commitment. The road doesn't care how tired you are.</p>
+    </div>
+  </div>
+</div>
+
+
+<!-- MANIFESTO -->
+<section id="mani">
+  <div class="mghost">NEXPECT</div>
+  <div class="minn rv">
+    <span class="mline">Your game</span>
+    <span class="mline">deserves</span>
+    <span class="mline"><em>a stage.</em></span>
+    <p class="msub">We built NexPect for the athlete who trains in silence and lets the results do the talking. This is not for everyone. This is for you.</p>
+  </div>
+</section>
+
+<!-- STATS -->
+<section style="border-top:1px solid var(--bd);border-bottom:1px solid var(--bd)">
+  <div class="stats">
+    <div class="srow rv">
+      <div class="sbox"><span class="sn">9+</span><span class="sl">Sports<br>Covered</span></div>
+      <div class="sbox"><span class="sn">∞</span><span class="sl">Potential<br>Unlocked</span></div>
+      <div class="sbox"><span class="sn">1</span><span class="sl">Platform.<br>Players Only.</span></div>
+    </div>
+  </div>
+</section>
+
+<!-- WAITLIST -->
+<section id="wl">
+  <div class="wglow"></div>
+  <div class="winn">
+    <span class="wpill rv">Players Only · Early Access</span>
+    <h2 class="wh rv d1">Be<br><em>First.</em></h2>
+    <p class="wsub rv d2">Early access is limited to athletes. Be among the first players to get discovered.</p>
+
+    <form class="wform rv d3" id="wlForm" onsubmit="doWL(event)" novalidate>
+
+      <!-- Row 1: First + Last name -->
+      <div class="wgrid2">
+        <div class="wfield">
+          <label class="wlabel" for="wfn">First Name</label>
+          <input class="winput" type="text" id="wfn" placeholder="First name" autocomplete="given-name" required>
+          <span class="wacc"></span>
+        </div>
+        <div class="wfield">
+          <label class="wlabel" for="wln">Last Name</label>
+          <input class="winput" type="text" id="wln" placeholder="Last name" autocomplete="family-name" required>
+          <span class="wacc"></span>
+        </div>
+      </div>
+
+      <!-- Row 2: Email (full width) -->
+      <div class="wfield wfull">
+        <label class="wlabel" for="wem">Email Address</label>
+        <input class="winput" type="email" id="wem" placeholder="your@email.com" autocomplete="email" required>
+        <span class="wacc"></span>
+      </div>
+
+      <!-- Row 3: Sport (full width) -->
+      <div class="wfield wfull">
+        <label class="wlabel" for="wsp">Sport</label>
+        <div class="wsel-wrap">
+          <select class="wsel-inner" id="wsp" required>
+            <option value="" disabled selected>Select your sport</option>
+            <option value="Football / Soccer">Football / Soccer</option>
+            <option value="Basketball">Basketball</option>
+            <option value="American Football">American Football</option>
+            <option value="Rugby">Rugby</option>
+            <option value="Baseball">Baseball</option>
+            <option value="Boxing">Boxing</option>
+            <option value="MMA">MMA</option>
+            <option value="Wrestling">Wrestling</option>
+            <option value="Cycling">Cycling</option>
+            <option value="Other">Other</option>
+          </select>
+          <span class="wacc"></span>
+        </div>
+      </div>
+
+      <!-- Row 4: Country (full width) -->
+      <div class="wfield wfull">
+        <label class="wlabel" for="wco">Country</label>
+        <div class="wsel-wrap">
+          <select class="wsel-inner" id="wco" required>
+            <option value="" disabled selected>Select your country</option>
+            <option>Afghanistan</option><option>Albania</option><option>Algeria</option><option>Andorra</option><option>Angola</option><option>Antigua and Barbuda</option><option>Argentina</option><option>Armenia</option><option>Australia</option><option>Austria</option><option>Azerbaijan</option>
+            <option>Bahamas</option><option>Bahrain</option><option>Bangladesh</option><option>Barbados</option><option>Belarus</option><option>Belgium</option><option>Belize</option><option>Benin</option><option>Bhutan</option><option>Bolivia</option><option>Bosnia and Herzegovina</option><option>Botswana</option><option>Brazil</option><option>Brunei</option><option>Bulgaria</option><option>Burkina Faso</option><option>Burundi</option>
+            <option>Cabo Verde</option><option>Cambodia</option><option>Cameroon</option><option>Canada</option><option>Central African Republic</option><option>Chad</option><option>Chile</option><option>China</option><option>Colombia</option><option>Comoros</option><option>Congo (Brazzaville)</option><option>Congo (Kinshasa)</option><option>Costa Rica</option><option>Croatia</option><option>Cuba</option><option>Cyprus</option><option>Czech Republic</option>
+            <option>Denmark</option><option>Djibouti</option><option>Dominica</option><option>Dominican Republic</option>
+            <option>Ecuador</option><option>Egypt</option><option>El Salvador</option><option>Equatorial Guinea</option><option>Eritrea</option><option>Estonia</option><option>Eswatini</option><option>Ethiopia</option>
+            <option>Fiji</option><option>Finland</option><option>France</option>
+            <option>Gabon</option><option>Gambia</option><option>Georgia</option><option>Germany</option><option>Ghana</option><option>Greece</option><option>Grenada</option><option>Guatemala</option><option>Guinea</option><option>Guinea-Bissau</option><option>Guyana</option>
+            <option>Haiti</option><option>Honduras</option><option>Hungary</option>
+            <option>Iceland</option><option>India</option><option>Indonesia</option><option>Iran</option><option>Iraq</option><option>Ireland</option><option>Israel</option><option>Italy</option><option>Ivory Coast</option>
+            <option>Jamaica</option><option>Japan</option><option>Jordan</option>
+            <option>Kazakhstan</option><option>Kenya</option><option>Kiribati</option><option>Kuwait</option><option>Kyrgyzstan</option>
+            <option>Laos</option><option>Latvia</option><option>Lebanon</option><option>Lesotho</option><option>Liberia</option><option>Libya</option><option>Liechtenstein</option><option>Lithuania</option><option>Luxembourg</option>
+            <option>Madagascar</option><option>Malawi</option><option>Malaysia</option><option>Maldives</option><option>Mali</option><option>Malta</option><option>Marshall Islands</option><option>Mauritania</option><option>Mauritius</option><option>Mexico</option><option>Micronesia</option><option>Moldova</option><option>Monaco</option><option>Mongolia</option><option>Montenegro</option><option>Morocco</option><option>Mozambique</option><option>Myanmar</option>
+            <option>Namibia</option><option>Nauru</option><option>Nepal</option><option>Netherlands</option><option>New Zealand</option><option>Nicaragua</option><option>Niger</option><option>Nigeria</option><option>North Korea</option><option>North Macedonia</option><option>Norway</option>
+            <option>Oman</option>
+            <option>Pakistan</option><option>Palau</option><option>Palestine</option><option>Panama</option><option>Papua New Guinea</option><option>Paraguay</option><option>Peru</option><option>Philippines</option><option>Poland</option><option>Portugal</option>
+            <option>Qatar</option>
+            <option>Romania</option><option>Russia</option><option>Rwanda</option>
+            <option>Saint Kitts and Nevis</option><option>Saint Lucia</option><option>Saint Vincent and the Grenadines</option><option>Samoa</option><option>San Marino</option><option>Sao Tome and Principe</option><option>Saudi Arabia</option><option>Senegal</option><option>Serbia</option><option>Seychelles</option><option>Sierra Leone</option><option>Singapore</option><option>Slovakia</option><option>Slovenia</option><option>Solomon Islands</option><option>Somalia</option><option>South Africa</option><option>South Korea</option><option>South Sudan</option><option>Spain</option><option>Sri Lanka</option><option>Sudan</option><option>Suriname</option><option>Sweden</option><option>Switzerland</option><option>Syria</option>
+            <option>Taiwan</option><option>Tajikistan</option><option>Tanzania</option><option>Thailand</option><option>Timor-Leste</option><option>Togo</option><option>Tonga</option><option>Trinidad and Tobago</option><option>Tunisia</option><option>Turkey</option><option>Turkmenistan</option><option>Tuvalu</option>
+            <option>Uganda</option><option>Ukraine</option><option>United Arab Emirates</option><option>United Kingdom</option><option>United States</option><option>Uruguay</option><option>Uzbekistan</option>
+            <option>Vanuatu</option><option>Vatican City</option><option>Venezuela</option><option>Vietnam</option>
+            <option>Yemen</option>
+            <option>Zambia</option><option>Zimbabwe</option>
+          </select>
+          <span class="wacc"></span>
+        </div>
+      </div>
+
+      <!-- Submit -->
+      <div class="wsubmit-wrap">
+        <button type="submit" class="wbtn" id="wbtn">Request Early Access →</button>
+        <p class="wnote">Early access is currently limited to players.</p>
+      </div>
+
+    </form>
+
+    <!-- Success state -->
+    <div class="wok" id="wok">
+      <span class="wok-check">✓</span>
+      <span class="wok-title">You're on the list.</span>
+      <span class="wok-sub">Your moment is coming.</span>
+    </div>
+
+  </div>
+</section>
+
+<!-- FOOTER -->
+<footer>
+  <div class="flogo"><img src="https://i.imgur.com/iwa0NAS.png" alt="NexPect"></div>
+  <p class="fcopy">© 2025 NexPect. All Rights Reserved.</p>
+</footer>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+<script>
+/* CURSOR */
+const c1=document.getElementById('c1'),c2=document.getElementById('c2');
+let mx=0,my=0,rx=0,ry=0;
+document.addEventListener('mousemove',e=>{mx=e.clientX;my=e.clientY;c1.style.left=mx+'px';c1.style.top=my+'px';});
+(function t(){rx+=(mx-rx)*.13;ry+=(my-ry)*.13;c2.style.left=rx+'px';c2.style.top=ry+'px';requestAnimationFrame(t);})();
+
+/* NAV */
+window.addEventListener('scroll',()=>document.getElementById('nav').classList.toggle('on',scrollY>50));
+
+/* REVEAL */
+(()=>{const io=new IntersectionObserver(ee=>ee.forEach(e=>e.isIntersecting&&e.target.classList.add('vis')),{threshold:.08});document.querySelectorAll('.rv').forEach(el=>io.observe(el));})();
+
+/* IMAGE ERROR HANDLING — add dark pattern fallback */
+document.querySelectorAll('.simg-wrap img').forEach(img=>{
+  img.addEventListener('error',function(){
+    // If all fallbacks exhausted, show a beautiful dark gradient
+    if(this.dataset.fallbackUsed){
+      this.parentElement.style.background='linear-gradient(135deg,#0b1a0e 0%,#1a2e1a 50%,#060906 100%)';
+      this.style.opacity='0';
+    }
+    this.dataset.fallbackUsed='1';
+  });
+});
+
+/* WAITLIST */
+function doWL(e){
+  e.preventDefault();
+  const fn=document.getElementById('wfn').value.trim();
+  const ln=document.getElementById('wln').value.trim();
+  const em=document.getElementById('wem').value.trim();
+  const sp=document.getElementById('wsp').value;
+  const co=document.getElementById('wco').value;
+  const emailRe=/^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+  // Validate
+  if(!fn||!ln||!emailRe.test(em)||!sp||!co){
+    if(!fn)document.getElementById('wfn').style.borderColor='rgba(255,80,80,.5)';
+    if(!ln)document.getElementById('wln').style.borderColor='rgba(255,80,80,.5)';
+    if(!emailRe.test(em))document.getElementById('wem').style.borderColor='rgba(255,80,80,.5)';
+    if(!sp)document.getElementById('wsp').style.borderColor='rgba(255,80,80,.5)';
+    if(!co)document.getElementById('wco').style.borderColor='rgba(255,80,80,.5)';
+    return;
+  }
+  const entry={firstName:fn,lastName:ln,email:em,sport:sp,country:co,ts:new Date().toISOString()};
+  try{
+    const l=JSON.parse(localStorage.getItem('nx_wl')||'[]');
+    l.push(entry);
+    localStorage.setItem('nx_wl',JSON.stringify(l));
+    console.log('NexPect waitlist entry saved:',entry);
+  }catch(er){}
+  // Show success, hide form
+  document.getElementById('wlForm').style.display='none';
+  document.getElementById('wok').style.display='block';
+}
+// Clear error highlight on input
+document.addEventListener('DOMContentLoaded',()=>{
+  ['wfn','wln','wem','wsp','wco'].forEach(id=>{
+    const el=document.getElementById(id);
+    if(el)el.addEventListener('input',()=>{el.style.borderColor='';});
+  });
+});
+
+/* THREE.JS HERO PARTICLES */
+(function(){
+  const canvas=document.getElementById('hc');
+  const renderer=new THREE.WebGLRenderer({canvas,alpha:true,antialias:true});
+  renderer.setPixelRatio(Math.min(devicePixelRatio,2));
+  renderer.setSize(innerWidth,innerHeight);
+  const scene=new THREE.Scene(),camera=new THREE.PerspectiveCamera(60,innerWidth/innerHeight,.1,1000);
+  camera.position.z=5;
+  const n=2400,pos=new Float32Array(n*3);
+  for(let i=0;i<n;i++){pos[i*3]=(Math.random()-.5)*24;pos[i*3+1]=(Math.random()-.5)*24;pos[i*3+2]=(Math.random()-.5)*16;}
+  const geo=new THREE.BufferGeometry();
+  geo.setAttribute('position',new THREE.BufferAttribute(pos,3));
+  const pts=new THREE.Points(geo,new THREE.PointsMaterial({color:0x39ff60,size:.019,transparent:true,opacity:.18,sizeAttenuation:true}));
+  scene.add(pts);
+  const lv=[];
+  for(let i=0;i<55;i++){const x=(Math.random()-.5)*20,y=(Math.random()-.5)*20,z=(Math.random()-.5)*10,l=Math.random()*2+.3;lv.push(x,y,z,x+l*(Math.random()-.5),y+l*(Math.random()-.5),z);}
+  const lg=new THREE.BufferGeometry();
+  lg.setAttribute('position',new THREE.BufferAttribute(new Float32Array(lv),3));
+  scene.add(new THREE.LineSegments(lg,new THREE.LineBasicMaterial({color:0x39ff60,transparent:true,opacity:.045})));
+  let mxr=0,myr=0;
+  document.addEventListener('mousemove',e=>{mxr=(e.clientX/innerWidth-.5)*2;myr=-(e.clientY/innerHeight-.5)*2;});
+  window.addEventListener('resize',()=>{camera.aspect=innerWidth/innerHeight;camera.updateProjectionMatrix();renderer.setSize(innerWidth,innerHeight);});
+  let t=0;
+  (function animate(){requestAnimationFrame(animate);t+=.001;pts.rotation.y=t*.14+mxr*.03;pts.rotation.x=t*.07+myr*.025;renderer.render(scene,camera);})();
+})();
+</script>
+</body>
+</html>
