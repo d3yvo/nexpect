@@ -1447,5 +1447,24 @@ document.querySelectorAll('.simg-wrap img').forEach(img=>{
   (function animate(){requestAnimationFrame(animate);t+=.001;pts.rotation.y=t*.14+mxr*.03;pts.rotation.x=t*.07+myr*.025;renderer.render(scene,camera);})();
 })();
 </script>
+
+
+
+<!-- ─── LEGAL FOOTER ─────────────────────────────── -->
+<style>
+.lf{background:var(--bg);border-top:1px solid var(--bd);padding:28px 24px;font-family:var(--M);font-size:11px;letter-spacing:.18em;text-transform:uppercase;color:var(--mu);display:flex;flex-wrap:wrap;align-items:center;justify-content:center;gap:8px 22px;text-align:center}
+.lf .lf-sep{opacity:.5}
+.lf a{color:var(--gr);text-decoration:none;transition:color .2s,opacity .2s;cursor:none}
+.lf a:hover{color:var(--G);opacity:1}
+@media(max-width:520px){.lf{font-size:10px;gap:6px 14px}}
+</style>
+<footer class="lf">
+  <span>&copy; 2025 NexPect. All rights reserved.</span>
+  <span class="lf-sep">|</span>
+  <a href="terms-of-service.html">Terms of Service</a>
+  <span class="lf-sep">&middot;</span>
+  <a href="privacy-policy.html">Privacy Policy</a>
+</footer>
+
 </body>
 </html>
